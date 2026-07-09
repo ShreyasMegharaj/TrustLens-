@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Patrick+Hand&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+@layer base {
+  :root { color-scheme: light; }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background-color: #fdfbf7;
+    color: #2d2d2d;
+    font-family: "Patrick Hand", cursive;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    /* Subtle dot/grain paper texture */
+    background-image:
+      radial-gradient(circle, #c8c0b4 1px, transparent 1px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-size: 24px 24px, 200px 200px;
+  }
+
+  h1, h2, h3 {
+    font-family: "Kalam", cursive;
+  }
+
+  /* Smooth focus rings in paper style */
+  :focus-visible {
+    outline: 3px solid #2d5da1;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ── Components ───────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* Primary button — ballpoint pen blue, hard offset shadow */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           px-5 py-2.5
+           bg-brand text-white font-heading font-bold text-sm
+           border-2 border-ink
+           shadow-hard
+           transition-all duration-100 ease-out
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand;
+    border-radius: 6px 14px 6px 10px;
+  }
+  .btn-primary:hover  { @apply bg-brand-light; transform: translate(-1px, -1px); box-shadow: 5px 5px 0 #2d2d2d; }
+  .btn-primary:active { @apply shadow-none; transform: translate(3px, 3px); }
+
+  /* Secondary button — paper white, sketch border */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           px-5 py-2.5
+           bg-paper text-ink font-heading font-bold text-sm
+           border-2 border-ink
+           shadow-hard-sm
+           transition-all duration-100 ease-out
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand;
+    border-radius: 10px 6px 10px 6px;
+  }
+  .btn-secondary:hover  { @apply bg-muted; transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #2d2d2d; }
+  .btn-secondary:active { @apply shadow-none; transform: translate(2px, 2px); }
+
+  /* Card — paper sheet with hard shadow */
+  .card {
+    @apply bg-paper border-2 border-ink;
+    border-radius: 8px 16px 8px 12px;
+    box-shadow: 4px 4px 0 #2d2d2d;
+  }
+
+  /* Input — wobbly bordered box */
+  .input {
+    @apply w-full px-4 py-3
+           bg-white text-ink placeholder-faint text-base
+           border-2 border-ink
+           transition-all duration-150
+           focus:outline-none focus:border-brand;
+    border-radius: 8px 4px 8px 4px;
+    box-shadow: inset 2px 2px 0 rgba(0,0,0,0.06);
+  }
+  .input:focus { box-shadow: inset 2px 2px 0 rgba(45,93,161,0.1), 2px 2px 0 #2d5da1; }
+
+  /* Badge base */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 text-xs font-heading font-bold border-2 border-ink;
+    border-radius: 4px 10px 4px 10px;
+    box-shadow: 2px 2px 0 #2d2d2d;
+  }
+
+  /* Risk badges */
+  .badge-low    { @apply bg-green-100 text-risk-low border-risk-low; box-shadow: 2px 2px 0 #2d7a4f; }
+  .badge-medium { @apply bg-amber-100 text-risk-medium border-risk-medium; box-shadow: 2px 2px 0 #b45309; }
+  .badge-high   { @apply bg-red-100   text-risk-high   border-risk-high;   box-shadow: 2px 2px 0 #c0392b; }
+
+  /* Paper section divider — dashed pencil line */
+  .divider {
+    @apply border-0 border-t-2 border-dashed border-faint my-6;
+  }
+
+  /* Tape strip decoration */
+  .tape {
+    @apply inline-block px-6 py-0.5 bg-yellow-100 border border-yellow-300 opacity-80;
+    transform: rotate(-1deg);
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+  }
+
+  /* Evidence tag label */
+  .label-tag {
+    @apply inline-block px-3 py-1 bg-muted border-2 border-ink text-xs font-heading uppercase tracking-wider;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: 2px 2px 0 #2d2d2d;
+  }
+
+  /* Stat cell */
+  .stat-cell {
+    @apply bg-white border-2 border-ink p-3;
+    border-radius: 6px 10px 6px 10px;
+    box-shadow: 2px 2px 0 #2d2d2d;
+  }
+
+  /* Stamp overlay — verdict badge rotating */
+  .stamp-badge {
+    @apply absolute border-4 font-heading font-bold uppercase px-4 py-2 text-sm tracking-widest;
+    transform: rotate(-8deg);
+    opacity: 0.92;
+  }
+  .stamp-authentic  { @apply border-risk-low text-risk-low bg-green-50; box-shadow: 0 0 0 2px #2d7a4f; }
+  .stamp-suspicious { @apply border-risk-medium text-risk-medium bg-amber-50; box-shadow: 0 0 0 2px #b45309; }
+  .stamp-fraudulent { @apply border-risk-high text-risk-high bg-red-50; box-shadow: 0 0 0 2px #c0392b; }
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #e5e0d8; }
+::-webkit-scrollbar-thumb { background: #c8c0b4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2d5da1; }
+
+/* ── Drop zone pulse ──────────────────────────────────────────────────────── */
+@keyframes dropzone-pulse {
+  0%, 100% { border-color: #2d5da1; box-shadow: 4px 4px 0 #2d5da1; }
+  50%       { border-color: #ff4d4d; box-shadow: 4px 4px 0 #ff4d4d; }
+}
+.dropzone-active { animation: dropzone-pulse 1.2s ease-in-out infinite; }
+
+/* ── Wobbly underline heading decoration ─────────────────────────────────── */
+.underline-sketch {
+  position: relative;
+  display: inline-block;
+}
+.underline-sketch::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0; right: 0;
+  height: 3px;
+  background: #ff4d4d;
+  border-radius: 2px;
+  transform: rotate(-0.5deg);
+}

@@ -1,0 +1,55 @@
+# render.yaml — TrustLens multi-service deployment config
+# Drop this file in your repo root and import it at dashboard.render.com
+# Both services will be created and linked automatically.
+#
+# IMPORTANT: Set the following env vars manually in the Render dashboard
+# (do NOT put secret values in this file):
+#   trustlens-backend  → MONGODB_URI, JWT_SECRET, GOOGLE_API_KEY
+#   trustlens-ml       → (none required beyond PORT which Render sets)
+
+services:
+
+  # ── Backend (Node.js / Express) ────────────────────────────────────────────
+  - type: web
+    name: trustlens-backend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # ↓ Set these manually in the Render dashboard — never hardcode secrets
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      # Set this AFTER the ML service is deployed
+      - key: ML_SERVICE_URL
+        sync: false
+      # Set this AFTER the frontend is deployed on Vercel
+      - key: FRONTEND_URL
+        sync: false
+
+  # ── ML Service (Python / Flask) ────────────────────────────────────────────
+  - type: web
+    name: trustlens-ml
+    env: python
+    region: oregon
+    plan: free
+    rootDir: ml-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_ENV
+        value: production

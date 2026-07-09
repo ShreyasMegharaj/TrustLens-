@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrustLens</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+  <div class="header">
+    <div class="logo">
+      <img src="icons/icon48.png" alt="TrustLens" class="logo-icon">
+      <div class="logo-text">
+        <span class="logo-name">Trust<span>Lens</span></span>
+        <span class="logo-sub">AI Deepfake Detector</span>
+      </div>
+    </div>
+    <button id="settingsBtn" class="icon-btn" title="Settings">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ══ SETTINGS PANEL ══════════════════════════════════════════════════════ -->
+  <div id="settingsPanel" class="settings-panel hidden">
+    <div class="settings-title">⚙ Configure Endpoints</div>
+    <div class="field">
+      <label>ML Service URL</label>
+      <input id="inputMlUrl" type="text" placeholder="http://localhost:5001" spellcheck="false">
+      <span class="field-hint">Your Flask ML service address</span>
+    </div>
+    <div class="field">
+      <label>Website URL</label>
+      <input id="inputWebUrl" type="text" placeholder="http://localhost:5173" spellcheck="false">
+      <span class="field-hint">Your TrustLens web app address</span>
+    </div>
+    <div class="settings-actions">
+      <button id="saveSettings" class="btn-primary">Save</button>
+      <button id="cancelSettings" class="btn-ghost">Cancel</button>
+    </div>
+    <div class="settings-deploy-note">
+      <span>🚀 Deployed?</span> Set ML URL to your Render URL and Website URL to your Vercel URL.
+    </div>
+  </div>
+
+  <!-- ══ MAIN CONTENT ════════════════════════════════════════════════════════ -->
+  <main id="main">
+
+    <!-- ── State: Capturing ─────────────────────────────────────────────── -->
+    <div id="stateCapturing" class="state">
+      <div class="viewfinder-wrap">
+        <div class="viewfinder">
+          <div class="vf-glow"></div>
+          <div class="scan-line" id="scanLine1"></div>
+          <div class="corner c-tl"></div>
+          <div class="corner c-tr"></div>
+          <div class="corner c-bl"></div>
+          <div class="corner c-br"></div>
+        </div>
+      </div>
+      <div class="state-label">📸 Capturing screenshot…</div>
+      <div class="state-sub">Collecting evidence from current page</div>
+    </div>
+
+    <!-- ── State: Analyzing ─────────────────────────────────────────────── -->
+    <div id="stateAnalyzing" class="state hidden">
+      <div class="preview-wrap">
+        <img id="previewImg" class="preview-img" src="" alt="Screenshot">
+        <div class="preview-scan-overlay">
+          <div class="scan-line green"></div>
+        </div>
+        <div class="preview-vignette"></div>
+        <div class="preview-status">
+          <div class="signal-icon">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+          </div>
+          Analyzing…
+        </div>
+      </div>
+      <div class="dots-row">
+        <span class="dot" style="--d:0s"></span>
+        <span class="dot" style="--d:.12s"></span>
+        <span class="dot" style="--d:.24s"></span>
+        <span class="dot" style="--d:.36s"></span>
+        <span class="dot" style="--d:.48s"></span>
+      </div>
+      <div class="state-sub">Running multi-signal AI detection…</div>
+    </div>
+
+    <!-- ── State: Result ────────────────────────────────────────────────── -->
+    <div id="stateResult" class="state hidden" style="padding: 14px; gap: 0; align-items: stretch; justify-content: flex-start;">
+
+      <!-- Thumbnail strip -->
+      <div class="result-thumb-wrap">
+        <img id="thumbImg" class="result-thumb" src="" alt="Analyzed screenshot">
+        <div id="thumbOverlay" class="thumb-overlay"></div>
+        <div id="thumbCornerBadge" class="thumb-corner-badge"></div>
+      </div>
+
+      <!-- Verdict card -->
+      <div id="verdictCard" class="verdict-card">
+        <div id="verdictBadge" class="verdict-badge"></div>
+
+        <!-- Confidence ruler -->
+        <div class="conf-section">
+          <div class="conf-header">
+            <span class="conf-label">Confidence Score</span>
+            <span id="confVal" class="conf-val">—</span>
+          </div>
+          <div class="conf-track">
+            <div id="confBar" class="conf-bar"></div>
+          </div>
+        </div>
+
+        <!-- ELA signals (if available) -->
+        <div id="signalsSection" class="signals-section hidden">
+          <div class="signals-toggle" id="signalsToggle">
+            <span>Signal Details</span>
+            <span class="toggle-arrow">▾</span>
+          </div>
+          <div id="signalsBody" class="signals-body hidden">
+            <div id="signalsList" class="signals-list"></div>
+          </div>
+        </div>
+
+        <!-- AI Analyst report — sticky note style -->
+        <p id="reportText" class="report-text"></p>
+
+        <!-- Actions -->
+        <div class="actions-row">
+          <button id="reanalyzeBtn" class="btn-secondary">🔄 Scan Again</button>
+          <a id="historyLink" class="btn-primary link-btn" href="#" target="_blank">📋 View History</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── State: Error ──────────────────────────────────────────────────── -->
+    <div id="stateError" class="state hidden">
+      <div class="error-wrap">
+        <div class="err-icon">⚠️</div>
+        <div id="errTitle" class="err-title">Cannot Reach ML Service</div>
+        <p id="errMsg" class="err-msg">Make sure the TrustLens ML service is running on port 5001.</p>
+        <button id="retryBtn" class="btn-secondary">🔄 Retry</button>
+        <button id="errSettingsBtn" class="btn-ghost">⚙️ Check Settings</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ══ FOOTER ═════════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <span class="footer-brand">TrustLens AI</span>
+    <a id="openSite" class="footer-link" href="#" target="_blank">Open Web App ↗</a>
+  </footer>
+
+</div>
+<script src="popup.js"></script>
+</body>
+</html>

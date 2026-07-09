@@ -1,0 +1,13 @@
+/*
+ * TrustLens — App.css
+ * Global app-level overrides (index.css handles the design system).
+ * This file is intentionally minimal — all component styles live in
+ * index.css (Tailwind @layer components) and tailwind.config.js.
+ */
+
+/* Ensure the React root takes up full height */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

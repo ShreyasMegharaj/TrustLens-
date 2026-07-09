@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "TrustLens — AI Deepfake Detector",
+  "version": "1.0.0",
+  "description": "Instantly detect deepfakes and image tampering. Click to auto-screenshot and analyze any page with AI.",
+
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    },
+    "default_title": "TrustLens — Click to analyze this page"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "http://localhost:5001/*",
+    "https://*.onrender.com/*",
+    "<all_urls>"
+  ]
+}

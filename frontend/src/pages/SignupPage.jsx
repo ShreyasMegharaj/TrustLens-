@@ -1,0 +1,135 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { signup } from "../api";
+import { useAuth } from "../context/AuthContext";
+
+function Field({ id, label, type, name, placeholder, autoComplete, value, onChange, required, minLength }) {
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor={id} className="block text-sm font-heading font-bold text-ink">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        autoComplete={autoComplete}
+        required={required}
+        minLength={minLength}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="input"
+      />
+    </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+    </svg>
+  );
+}
+
+export default function SignupPage() {
+  const { saveAuth } = useAuth();
+  const navigate     = useNavigate();
+
+  const [form,    setForm]    = useState({ name: "", email: "", password: "" });
+  const [error,   setError]   = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await signup(form.name, form.email, form.password);
+      saveAuth(data.token, data.user);
+      navigate("/upload");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md space-y-6 animate-slide-up">
+
+        {/* Brand header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center justify-center w-16 h-16 border-2 border-ink bg-note-green mx-auto"
+            style={{ borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%", boxShadow: "3px 3px 0 #2d2d2d" }}>
+            <svg className="w-8 h-8 text-risk-low" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <h1 className="font-heading font-bold text-3xl text-ink">Create Account</h1>
+          <p className="font-body text-faint">Start detecting deepfakes and document fraud</p>
+        </div>
+
+        {/* Form card */}
+        <div className="card p-8 space-y-5">
+
+          {/* Tape decoration */}
+          <div className="flex justify-center -mt-12 mb-2">
+            <div className="tape text-xs font-heading text-ink font-bold px-6 py-1 rotate-1">
+              NEW CASE FILE
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-note-red border-2 border-risk-high px-4 py-3 animate-fade-in"
+              style={{ borderRadius: "6px 12px 6px 6px" }}>
+              <p className="text-sm font-body text-risk-high">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={onSubmit} className="space-y-4">
+            <Field id="signup-name" label="Full Name" type="text" name="name"
+              placeholder="Jane Smith" autoComplete="name" required
+              value={form.name} onChange={onChange} />
+
+            <Field id="signup-email" label="Email address" type="email" name="email"
+              placeholder="you@example.com" autoComplete="email" required
+              value={form.email} onChange={onChange} />
+
+            <Field id="signup-password" label="Password" type="password" name="password"
+              placeholder="Minimum 6 characters" autoComplete="new-password" required minLength={6}
+              value={form.password} onChange={onChange} />
+
+            <button
+              id="signup-submit"
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-3 text-base disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+            >
+              {loading ? <><Spinner /> Creating account...</> : "Create Account"}
+            </button>
+          </form>
+
+          <hr className="border-dashed border-faint border-t-2"/>
+
+          <p className="text-center text-sm font-body text-faint">
+            Already have an account?{" "}
+            <Link to="/login" className="text-brand font-heading font-bold hover:underline underline-offset-2">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

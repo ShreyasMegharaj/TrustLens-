@@ -1,0 +1,786 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   TrustLens Chrome Extension — Popup Styles
+   Matches the website's paper / detective-case-file aesthetic exactly.
+   Fonts: Kalam (headings) · Patrick Hand (body) — same as the web app
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Patrick+Hand&display=swap');
+
+/* ── Reset & Base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 380px;
+  min-height: 480px;
+  /* Paper background with subtle dot grid — same as web app */
+  background-color: #fdfbf7;
+  background-image:
+    radial-gradient(circle, #c8c0b4 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: #2d2d2d;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+}
+
+.hidden { display: none !important; }
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #fdfbf7;
+  border-bottom: 2px solid #2d2d2d;
+  box-shadow: 0 2px 0 #2d2d2d;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  border: 2px solid #2d2d2d;
+  box-shadow: 2px 2px 0 #2d2d2d;
+}
+
+.logo-name {
+  display: block;
+  font-family: 'Kalam', cursive;
+  font-size: 17px;
+  font-weight: 700;
+  color: #2d2d2d;
+  line-height: 1;
+}
+
+.logo-name span { color: #2d5da1; }
+
+.logo-sub {
+  display: block;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 9px;
+  color: #c8c0b4;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 1px;
+}
+
+.icon-btn {
+  background: #fdfbf7;
+  border: 2px solid #2d2d2d;
+  border-radius: 6px 10px 6px 10px;
+  padding: 5px;
+  color: #2d2d2d;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0 #2d2d2d;
+  transition: all 0.1s ease;
+}
+.icon-btn:hover {
+  background: #dbeafe;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #2d2d2d;
+}
+.icon-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #2d2d2d;
+}
+
+/* ── Settings Panel ───────────────────────────────────────────────────────── */
+.settings-panel {
+  background: #fff9c4;
+  border-bottom: 2px solid #2d2d2d;
+  padding: 12px 14px;
+  animation: slideDown 0.2s ease;
+  position: relative;
+}
+
+/* Tape decoration on settings */
+.settings-panel::before {
+  content: 'CONFIGURE';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1deg);
+  background: #fff9c4;
+  border: 1px solid #e0d080;
+  padding: 1px 14px;
+  font-family: 'Kalam', cursive;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #2d2d2d;
+  opacity: 0.85;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.settings-title {
+  font-family: 'Kalam', cursive;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2d2d2d;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+}
+
+.field {
+  margin-bottom: 9px;
+}
+.field label {
+  display: block;
+  font-family: 'Kalam', cursive;
+  font-size: 10px;
+  font-weight: 700;
+  color: #2d2d2d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+.field input {
+  width: 100%;
+  padding: 6px 10px;
+  background: #ffffff;
+  border: 2px solid #2d2d2d;
+  border-radius: 8px 4px 8px 4px;
+  color: #2d2d2d;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 12px;
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.05);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus {
+  outline: none;
+  border-color: #2d5da1;
+  box-shadow: inset 2px 2px 0 rgba(45,93,161,0.1), 2px 2px 0 #2d5da1;
+}
+.field-hint {
+  display: block;
+  font-size: 10px;
+  color: #c8c0b4;
+  margin-top: 2px;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.settings-deploy-note {
+  font-size: 10px;
+  color: #2d2d2d;
+  background: #fdfbf7;
+  border: 2px solid #2d2d2d;
+  border-radius: 4px 10px 4px 6px;
+  padding: 6px 10px;
+  line-height: 1.5;
+  box-shadow: 2px 2px 0 #2d2d2d;
+}
+.settings-deploy-note span {
+  color: #2d5da1;
+  font-family: 'Kalam', cursive;
+  font-weight: 700;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.btn-primary {
+  padding: 7px 14px;
+  background: #2d5da1;
+  color: #fff;
+  border: 2px solid #2d2d2d;
+  border-radius: 6px 14px 6px 10px;
+  cursor: pointer;
+  font-family: 'Kalam', cursive;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 3px 3px 0 #2d2d2d;
+  transition: all 0.1s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+.btn-primary:hover {
+  background: #4a7bc8;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #2d2d2d;
+}
+.btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #2d2d2d;
+}
+
+.btn-secondary {
+  padding: 7px 12px;
+  background: #fdfbf7;
+  color: #2d2d2d;
+  border: 2px solid #2d2d2d;
+  border-radius: 10px 6px 10px 6px;
+  cursor: pointer;
+  font-family: 'Kalam', cursive;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 2px 2px 0 #2d2d2d;
+  transition: all 0.1s ease;
+  white-space: nowrap;
+}
+.btn-secondary:hover {
+  background: #e5e0d8;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #2d2d2d;
+}
+.btn-secondary:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #2d2d2d;
+}
+
+.btn-ghost {
+  padding: 7px 12px;
+  background: transparent;
+  color: #c8c0b4;
+  border: 2px dashed #c8c0b4;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+.btn-ghost:hover {
+  border-color: #2d2d2d;
+  color: #2d2d2d;
+}
+
+.link-btn {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Main / States ────────────────────────────────────────────────────────── */
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 20px 16px;
+  gap: 12px;
+}
+
+/* ── Capturing State — case-file viewfinder ───────────────────────────────── */
+.viewfinder-wrap {
+  position: relative;
+  width: 180px;
+  height: 120px;
+}
+
+.viewfinder {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border: 3px dashed #c8c0b4;
+  border-radius: 4px;
+  background: #fdfbf7;
+  overflow: hidden;
+}
+
+.vf-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(45,93,161,0.06) 0%, transparent 70%);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* Corner brackets — hand-drawn style */
+.corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: #2d5da1;
+  border-style: solid;
+  z-index: 2;
+}
+.c-tl { top: 4px;    left: 4px;    border-width: 2px 0 0 2px; }
+.c-tr { top: 4px;    right: 4px;   border-width: 2px 2px 0 0; }
+.c-bl { bottom: 4px; left: 4px;    border-width: 0 0 2px 2px; }
+.c-br { bottom: 4px; right: 4px;   border-width: 0 2px 2px 0; }
+
+/* Scan line — blue ballpoint style */
+.scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #2d5da1 30%, #4a7bc8 50%, #2d5da1 70%, transparent 100%);
+  box-shadow: 0 0 8px 2px rgba(45,93,161,0.4);
+  animation: scanMove 1.8s ease-in-out infinite;
+  z-index: 1;
+}
+
+.scan-line.green {
+  background: linear-gradient(90deg, transparent 0%, #2d7a4f 30%, #4ade80 50%, #2d7a4f 70%, transparent 100%);
+  box-shadow: 0 0 8px 2px rgba(45,122,79,0.4);
+  animation: scanMove 0.9s ease-in-out infinite;
+}
+
+@keyframes scanMove {
+  0%   { top: 5%; }
+  50%  { top: 88%; }
+  100% { top: 5%; }
+}
+
+.state-label {
+  font-family: 'Kalam', cursive;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+.state-sub {
+  font-size: 11px;
+  color: #c8c0b4;
+  text-align: center;
+  font-family: 'Patrick Hand', cursive;
+}
+
+/* ── Analyzing State ──────────────────────────────────────────────────────── */
+.preview-wrap {
+  position: relative;
+  width: 220px;
+  height: 138px;
+  border: 2px solid #2d2d2d;
+  border-radius: 4px 12px 4px 8px;
+  overflow: hidden;
+  box-shadow: 4px 4px 0 #2d2d2d;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.65) saturate(0.6);
+}
+
+.preview-scan-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.preview-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(253,251,247,0.5) 100%);
+}
+
+.preview-status {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Kalam', cursive;
+  font-size: 10px;
+  font-weight: 700;
+  color: #2d7a4f;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(253,251,247,0.9);
+  padding: 2px 6px;
+  border: 1px solid #2d2d2d;
+  border-radius: 3px;
+}
+
+.signal-icon {
+  animation: pulse 1s ease-in-out infinite;
+  color: #2d7a4f;
+  display: flex;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Bouncing dots */
+.dots-row {
+  display: flex;
+  gap: 5px;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2d5da1;
+  border: 1px solid #2d2d2d;
+  animation: dotBounce 1s ease-in-out infinite;
+  animation-delay: var(--d);
+}
+@keyframes dotBounce {
+  0%, 100% { opacity: 0.3; transform: scaleY(0.7); }
+  50%       { opacity: 1;   transform: scaleY(1.3); }
+}
+
+/* ── Result State ─────────────────────────────────────────────────────────── */
+
+/* Thumbnail strip — looks like a film/evidence strip */
+.result-thumb-wrap {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  overflow: hidden;
+  border: 2px solid #2d2d2d;
+  border-bottom: none;
+  border-radius: 4px 12px 0 0;
+  flex-shrink: 0;
+}
+
+.result-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.55) saturate(0.5);
+}
+
+.thumb-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+}
+.overlay-clean      { background: #2d7a4f; }
+.overlay-suspicious { background: #b45309; }
+.overlay-tampered   { background: #c0392b; }
+
+.thumb-corner-badge {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 20px;
+  filter: drop-shadow(1px 1px 0 #2d2d2d);
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+@keyframes popIn {
+  from { transform: scale(0) rotate(-20deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Tape strip across the thumb */
+.result-thumb-wrap::after {
+  content: 'EVIDENCE';
+  position: absolute;
+  bottom: 6px;
+  left: 10px;
+  background: rgba(255,249,196,0.85);
+  border: 1px solid rgba(180,160,0,0.4);
+  padding: 1px 10px;
+  font-family: 'Kalam', cursive;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #2d2d2d;
+  transform: rotate(-0.5deg);
+}
+
+/* Verdict card — the main case card */
+.verdict-card {
+  width: 100%;
+  background: #fdfbf7;
+  border: 2px solid #2d2d2d;
+  border-top: none;
+  border-radius: 0 0 4px 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  box-shadow: 4px 4px 0 #2d2d2d;
+}
+
+/* Verdict badge — looks like a rubber stamp */
+.verdict-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 2px solid #2d2d2d;
+  border-radius: 4px 10px 4px 10px;
+  font-family: 'Kalam', cursive;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  box-shadow: 2px 2px 0 #2d2d2d;
+  animation: slideInLeft 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+@keyframes slideInLeft {
+  from { transform: translateX(-10px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+.badge-clean {
+  background: #d1fae5;
+  color: #2d7a4f;
+  border-color: #2d7a4f;
+  box-shadow: 2px 2px 0 #2d7a4f;
+}
+.badge-suspicious {
+  background: #fff9c4;
+  color: #b45309;
+  border-color: #b45309;
+  box-shadow: 2px 2px 0 #b45309;
+}
+.badge-tampered {
+  background: #fee2e2;
+  color: #c0392b;
+  border-color: #c0392b;
+  box-shadow: 2px 2px 0 #c0392b;
+}
+
+.badge-emoji { font-size: 14px; line-height: 1; }
+.badge-text  { text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Confidence meter — ruler style matching website */
+.conf-section { animation: slideInLeft 0.35s ease 0.25s both; }
+.conf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.conf-label {
+  font-family: 'Kalam', cursive;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #c8c0b4;
+}
+.conf-val {
+  font-family: 'Kalam', cursive;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+
+/* Ruler track */
+.conf-track {
+  height: 10px;
+  background: #e5e0d8;
+  border: 2px solid #2d2d2d;
+  border-radius: 3px 6px 3px 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Tick marks on the ruler */
+.conf-track::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent calc(10% - 1px),
+    rgba(45,45,45,0.15) calc(10% - 1px),
+    rgba(45,45,45,0.15) 10%
+  );
+  z-index: 1;
+}
+
+.conf-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 0;
+}
+.bar-clean      { background: #2d7a4f; opacity: 0.8; }
+.bar-suspicious { background: #b45309; opacity: 0.8; }
+.bar-tampered   { background: #c0392b; opacity: 0.8; }
+
+/* Signals section — evidence log */
+.signals-section {
+  border: 2px dashed #e5e0d8;
+  border-radius: 4px 8px 4px 6px;
+  overflow: hidden;
+}
+.signals-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-family: 'Kalam', cursive;
+  font-size: 10px;
+  font-weight: 700;
+  color: #c8c0b4;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #fdfbf7;
+  transition: color 0.2s, background 0.2s;
+}
+.signals-toggle:hover {
+  color: #2d2d2d;
+  background: #e5e0d8;
+}
+.toggle-arrow { transition: transform 0.2s; }
+.toggle-arrow.open { transform: rotate(180deg); }
+
+.signals-body {
+  padding: 6px 8px;
+  background: #fdfbf7;
+  border-top: 1px dashed #e5e0d8;
+}
+.signals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.signal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+}
+.signal-name {
+  color: #c8c0b4;
+  font-family: 'Patrick Hand', cursive;
+  text-transform: capitalize;
+}
+.signal-val {
+  color: #2d2d2d;
+  font-family: 'Patrick Hand', cursive;
+  font-weight: 700;
+}
+
+/* Report text — yellow sticky note */
+.report-text {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 11px;
+  color: #2d2d2d;
+  line-height: 1.6;
+  background: #fff9c4;
+  border: 2px solid #2d2d2d;
+  border-radius: 4px 14px 4px 8px;
+  padding: 6px 10px;
+  box-shadow: 2px 2px 0 #2d2d2d;
+  transform: rotate(-0.3deg);
+  animation: slideInLeft 0.35s ease 0.35s both;
+  position: relative;
+}
+
+/* Actions row */
+.actions-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.actions-row .btn-secondary,
+.actions-row .btn-primary {
+  flex: 1;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+/* ── Error State ──────────────────────────────────────────────────────────── */
+.error-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px 20px;
+}
+
+/* Error card — red note */
+.error-wrap {
+  background: #fee2e2;
+  border: 2px solid #c0392b;
+  border-radius: 8px 14px 8px 12px;
+  box-shadow: 4px 4px 0 #c0392b;
+  margin: 14px;
+  padding: 20px 16px;
+}
+
+.err-icon  { font-size: 30px; }
+.err-title {
+  font-family: 'Kalam', cursive;
+  font-size: 15px;
+  font-weight: 700;
+  color: #c0392b;
+}
+.err-msg {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 12px;
+  color: #2d2d2d;
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 14px;
+  border-top: 2px solid #2d2d2d;
+  background: #fdfbf7;
+  flex-shrink: 0;
+}
+.footer-brand {
+  font-family: 'Kalam', cursive;
+  font-size: 10px;
+  font-weight: 700;
+  color: #c8c0b4;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.footer-link {
+  font-family: 'Kalam', cursive;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2d5da1;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footer-link:hover { color: #4a7bc8; text-decoration: underline; }
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #e5e0d8; }
+::-webkit-scrollbar-thumb { background: #c8c0b4; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #2d5da1; }
