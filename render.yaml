@@ -47,7 +47,7 @@ services:
     region: oregon
     plan: free
     rootDir: ml-service
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --upgrade pip && pip install torch==2.3.0+cpu torchvision==0.18.0+cpu --index-url https://download.pytorch.org/whl/cpu && pip install Flask==3.0.3 flask-cors==4.0.1 Werkzeug==3.0.3 numpy==1.26.4 opencv-python-headless==4.9.0.80 Pillow==10.3.0 gunicorn==22.0.0 python-dotenv==1.0.1
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1
     healthCheckPath: /health
     envVars:
