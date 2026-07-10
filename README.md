@@ -1,128 +1,95 @@
-# TrustLens
+# 🔍 TrustLens
 
-**AI-powered deepfake video + document tampering detector**
-Stack: React + Vite (frontend) · Express + MongoDB (backend) · Flask + PyTorch (ML service) · Claude API (reports)
+> **TrustLens is an AI-powered platform designed to combat misinformation by detecting deepfake videos and document tampering in real-time.** 
 
 ---
 
-## Quick Start (Local Development)
+## 📖 About The Project
 
-### 1. ML Service
+In an era of rampant misinformation and AI-generated media, distinguishing fact from fiction is harder than ever. **TrustLens** is a full-stack AI application and browser extension that helps users quickly verify the authenticity of digital media. 
+
+Whether you are browsing the web, reading an article, or analyzing a document, TrustLens acts as your personal forensic assistant—giving you instant, AI-backed verdicts and detailed reports.
+
+### 🌟 Key Features
+- **Deepfake Video Detection:** Upload videos to detect AI-generated face manipulations using a state-of-the-art ResNeXt50 neural network.
+- **Document Tampering Analysis:** Detects image forgery and pixel-level tampering in documents and screenshots using Error Level Analysis (ELA).
+- **Comprehensive AI Reports:** Integrates with Anthropic's Claude API to provide human-readable, detailed explanations of the forensic findings.
+- **Real-Time Browser Extension:** A Chrome/Edge extension that allows users to right-click any image on the web or take instant screenshots to verify authenticity on the fly.
+- **User Dashboard & History:** Secure user authentication with a dashboard to view the history of past verifications and analyses.
+
+---
+
+## 🧠 How It Works (Under the Hood)
+
+TrustLens is built with a modern, microservice-inspired architecture to ensure scalability and performance. Here is how the different pieces work together:
+
+1. **The Client (React Frontend & Browser Extension):** 
+   Users interact with a sleek, responsive React (Vite) web app or the lightweight Chrome extension. When a user submits an image or video, the client sends it to our Backend API.
+
+2. **The Brain (Node.js Backend):** 
+   Our Express server handles user authentication (JWT), talks to the MongoDB database to save user history, and securely orchestrates requests between the frontend, the ML Service, and the Claude API.
+
+3. **The Engine (Python/PyTorch ML Service):** 
+   This is the core forensic engine running on Flask. 
+   - For **videos**, it extracts frames and runs them through a `ResNeXt50` deep learning model trained specifically for deepfake detection.
+   - For **images/documents**, it performs Error Level Analysis (ELA) to highlight areas that have been digitally altered.
+
+4. **The Analyst (Claude API):** 
+   The backend takes the raw statistical output from the ML Service (e.g., confidence scores, anomaly rates) and passes it to Anthropic's Claude API. Claude translates these numbers into an easy-to-understand, detailed forensic report for the user.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React, Vite, CSS
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB Atlas
+- **Machine Learning:** Python, Flask, PyTorch (ResNeXt50)
+- **AI Integration:** Anthropic Claude API
+- **Browser Extension:** Manifest V3 (Chrome/Edge), JavaScript
+
+---
+
+## 🚀 Quick Start (For Developers)
+
+*(If you're a developer looking to run this locally, follow these steps!)*
+
+### 1. Start the Machine Learning Service
 ```bash
 cd ml-service
 pip install -r requirements.txt
-# Copy your ResNeXt50 model checkpoint to ml-service/model/resnext50_deepfake.pth
 cp .env.example .env
-python app.py          # runs on http://localhost:5001
+python app.py # Runs on http://localhost:5001
 ```
+*(Note: Place your trained `resnext50_deepfake.pth` checkpoint in `ml-service/model/`)*
 
-### 2. Backend
+### 2. Start the Backend API
 ```bash
 cd backend
 npm install
-cp .env.example .env
-# Fill in: MONGODB_URI, JWT_SECRET, ANTHROPIC_API_KEY
-npm run dev            # runs on http://localhost:5000
+cp .env.example .env # Fill in MONGODB_URI, JWT_SECRET, ANTHROPIC_API_KEY
+npm run dev # Runs on http://localhost:5000
 ```
 
-### 3. Frontend
+### 3. Start the Frontend
 ```bash
 cd frontend
 npm install
-cp .env.example .env   # VITE_API_URL=http://localhost:5000/api
-npm run dev            # runs on http://localhost:5173
+cp .env.example .env # VITE_API_URL=http://localhost:5000/api
+npm run dev # Runs on http://localhost:5173
 ```
 
----
-
-## Environment Variables
-
-### `backend/.env`
-| Variable | Description |
-|---|---|
-| `MONGODB_URI` | MongoDB Atlas connection string |
-| `JWT_SECRET` | Long random string for JWT signing |
-| `ANTHROPIC_API_KEY` | From console.anthropic.com |
-| `ML_SERVICE_URL` | URL of the running Flask ML service |
-| `FRONTEND_URL` | Frontend URL (for CORS) |
-
-### `ml-service/.env`
-| Variable | Description |
-|---|---|
-| `PORT` | Port to run Flask on (default: 5001) |
-| `FLASK_ENV` | `development` or `production` |
-
-### `frontend/.env`
-| Variable | Description |
-|---|---|
-| `VITE_API_URL` | Backend API base URL |
+### 4. Load the Chrome Extension
+1. Open Chrome and go to `chrome://extensions/`
+2. Enable **Developer mode**
+3. Click **Load unpacked** and select the `extension/` folder in this repository.
 
 ---
 
-## ML Model
-
-Place your trained `resnext50_deepfake.pth` checkpoint in `ml-service/model/`.
-
-The app runs in **demo mode** if no model file is found (returns placeholder results).
-
-The model should be a binary ResNeXt50_32x4d classifier:
-- Class 0 → Real
-- Class 1 → Fake
+## 📈 Future Scope & Improvements
+- Expanding model capabilities to detect audio deepfakes.
+- Implementing a caching layer (Redis) for frequently analyzed public URLs.
+- Open-sourcing the base dataset for community-driven model improvements.
 
 ---
-
-## API Endpoints
-
-### Backend
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/api/auth/signup` | ✗ | Register |
-| POST | `/api/auth/login` | ✗ | Login |
-| GET | `/api/auth/me` | ✓ | Current user |
-| POST | `/api/verify` | ✓ | Analyse file |
-| GET | `/api/verify/history` | ✓ | User history |
-| GET | `/api/verify/:id` | ✓ | Single record |
-
-### ML Service
-| Method | Path | Description |
-|---|---|---|
-| POST | `/analyze/video` | Deepfake detection |
-| POST | `/analyze/document` | ELA tampering detection |
-| GET | `/health` | Health check |
-
----
-
-## Deployment
-
-| Service | Platform |
-|---|---|
-| Frontend | Vercel |
-| Backend | Render (Node web service) |
-| ML Service | Render (Python web service) or HuggingFace Spaces |
-| Database | MongoDB Atlas (free tier) |
-
-See `PHASE 4` in `trustlens-build-plan.md` for full deployment steps.
-
----
-
-## Chrome Extension
-
-The `extension/` folder contains a Manifest V3 Chrome/Edge extension.
-
-### Features
-- **Auto-screenshot on open** — click the toolbar icon → instantly captures + analyzes current page
-- **Right-click any image** → "🔍 Check with TrustLens" → instant verdict
-- **Settings panel** — configure ML service URL (switch between local and deployed)
-- **"View History" link** — opens your TrustLens web app history page
-
-### Install (Developer Mode)
-1. Open Chrome → go to `chrome://extensions/`
-2. Enable **Developer mode** (toggle top-right)
-3. Click **Load unpacked** → select the `extension/` folder
-4. The TrustLens icon appears in your toolbar ✅
-
-### Configure for Deployment
-After deploying your services, open the extension → click ⚙️ Settings:
-- **ML Service URL** → your Render ML service URL (e.g. `https://trustlens-ml.onrender.com`)
-- **Website URL** → your Vercel frontend URL (e.g. `https://trustlens.vercel.app`)
-
+*Created by a passionate developer bridging the gap between AI and digital trust.*
