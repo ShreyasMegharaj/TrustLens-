@@ -44,8 +44,10 @@ app.use((err, _req, res, _next) => {
 // Auth routes will return 503 gracefully if Mongo is unavailable.
 app.listen(PORT, () => console.log(`[TrustLens] Backend running on port ${PORT}`));
 
+mongoose.set('bufferCommands', false);
+
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
   .then(() => {
     console.log("[TrustLens] MongoDB connected");
   })
