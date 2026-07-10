@@ -4,6 +4,7 @@
  */
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const REQUEST_TIMEOUT_MS = 20_000;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -14,6 +15,25 @@ function getToken() {
 function authHeaders() {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+async function request(url, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("Backend is not responding. Check the Render backend service.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function handleResponse(res) {
@@ -27,7 +47,7 @@ async function handleResponse(res) {
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 export async function signup(name, email, password) {
-  const res = await fetch(`${BASE_URL}/auth/signup`, {
+  const res = await request(`${BASE_URL}/auth/signup`, {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
     body:    JSON.stringify({ name, email, password }),
@@ -36,7 +56,7 @@ export async function signup(name, email, password) {
 }
 
 export async function login(email, password) {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
+  const res = await request(`${BASE_URL}/auth/login`, {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
     body:    JSON.stringify({ email, password }),
@@ -45,7 +65,7 @@ export async function login(email, password) {
 }
 
 export async function getMe() {
-  const res = await fetch(`${BASE_URL}/auth/me`, {
+  const res = await request(`${BASE_URL}/auth/me`, {
     headers: authHeaders(),
   });
   return handleResponse(res);
@@ -60,6 +80,7 @@ export async function verifyFile(file, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${BASE_URL}/verify`);
+    xhr.timeout = 120_000;
 
     const token = getToken();
     if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
@@ -84,19 +105,20 @@ export async function verifyFile(file, onProgress) {
     };
 
     xhr.onerror = () => reject(new Error("Network error. Is the server running?"));
+    xhr.ontimeout = () => reject(new Error("Backend timed out while analyzing the file."));
     xhr.send(form);
   });
 }
 
 export async function getHistory(page = 1, limit = 20) {
-  const res = await fetch(`${BASE_URL}/verify/history?page=${page}&limit=${limit}`, {
+  const res = await request(`${BASE_URL}/verify/history?page=${page}&limit=${limit}`, {
     headers: authHeaders(),
   });
   return handleResponse(res);
 }
 
 export async function getVerification(id) {
-  const res = await fetch(`${BASE_URL}/verify/${id}`, {
+  const res = await request(`${BASE_URL}/verify/${id}`, {
     headers: authHeaders(),
   });
   return handleResponse(res);
