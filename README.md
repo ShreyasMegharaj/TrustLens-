@@ -2,6 +2,8 @@
 
 > **TrustLens is an AI-powered platform designed to combat misinformation by detecting deepfake videos and document tampering in real-time.** 
 
+🌍 **Live Demo:** [https://frontend-gilt-pi-88.vercel.app/](https://frontend-gilt-pi-88.vercel.app/)
+
 ---
 
 ## 📖 About The Project
