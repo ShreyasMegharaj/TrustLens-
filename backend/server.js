@@ -6,6 +6,8 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 
+mongoose.set('bufferCommands', false);
+
 const authRoutes   = require("./routes/auth");
 const verifyRoutes = require("./routes/verify");
 
@@ -43,8 +45,6 @@ app.use((err, _req, res, _next) => {
 // Start the server immediately so ML/verify routes work even without MongoDB.
 // Auth routes will return 503 gracefully if Mongo is unavailable.
 app.listen(PORT, () => console.log(`[TrustLens] Backend running on port ${PORT}`));
-
-mongoose.set('bufferCommands', false);
 
 mongoose
   .connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
