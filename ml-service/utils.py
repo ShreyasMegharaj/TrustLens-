@@ -23,6 +23,8 @@ import cv2
 import numpy as np
 from PIL import Image, ImageChops, ImageEnhance, ImageFilter
 
+MAX_IMAGE_ANALYSIS_DIM = 960
+
 # Torch is optional — model functions raise clear errors when missing
 try:
     import torch
@@ -211,6 +213,9 @@ def ela_analysis(image_path: str, quality: int = 90) -> tuple:
     Higher score = more likely AI-generated / tampered.
     """
     original = Image.open(image_path).convert("RGB")
+    if max(original.size) > MAX_IMAGE_ANALYSIS_DIM:
+        original.thumbnail((MAX_IMAGE_ANALYSIS_DIM, MAX_IMAGE_ANALYSIS_DIM), Image.Resampling.LANCZOS)
+
     arr = np.array(original, dtype=np.float32)
 
     is_screenshot = _is_screenshot(arr)
@@ -221,7 +226,7 @@ def ela_analysis(image_path: str, quality: int = 90) -> tuple:
     # encoder randomness, making repeated calls produce consistent scores.
     pass_scores = []
     pass_variances = []
-    quality_offsets = [0, -3, +3]  # three slightly different quality anchors
+    quality_offsets = [0]  # _multi_quality_ela already checks multiple JPEG qualities
 
     for q_offset in quality_offsets:
         ela_s, ela_v = _multi_quality_ela(original, base_quality=quality + q_offset)
@@ -386,7 +391,8 @@ def _mad_noise_fingerprint(arr: np.ndarray) -> float:
         coarse_mad = channel_scores[2]
 
         # Natural 1/f roll-off: fine > medium > coarse. GAN breaks this.
-        rolloff_anomaly = abs((fine_mad - coarse_mad) / (fine_mad + 1e-8) - 0.6)
+        rolloff_denominator = max(abs(fine_mad), 1.0)
+        rolloff_anomaly = min(abs((fine_mad - coarse_mad) / rolloff_denominator - 0.6), 5.0)
 
         # Low noise penalty: GAN images have abnormally flat/low noise
         low_noise_penalty = max(0.0, 3.0 - fine_mad) * 0.4
