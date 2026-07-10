@@ -135,16 +135,17 @@ def _is_screenshot(arr: np.ndarray) -> bool:
 
     Returns True if the image is likely a screenshot.
     """
-    gray = arr.mean(axis=2).astype(np.uint8)
+    arr_u8 = np.clip(arr, 0, 255).astype(np.uint8)
+    gray = arr_u8.mean(axis=2).astype(np.uint8)
 
     # Signal 1: edge density (Canny)
     edges = cv2.Canny(gray, 80, 160)
     edge_density = edges.sum() / (255.0 * edges.size + 1e-8)
 
     # Signal 2: color uniqueness — sample 10k pixels, count distinct quantized colors
-    h, w = arr.shape[:2]
+    h, w = arr_u8.shape[:2]
     sample_size = min(10000, h * w)
-    flat = arr.reshape(-1, 3)
+    flat = arr_u8.reshape(-1, 3)
     idx = np.random.RandomState(42).choice(len(flat), sample_size, replace=False)
     sampled = flat[idx]
     # Quantize to 5-bit per channel (32 levels)
@@ -153,7 +154,7 @@ def _is_screenshot(arr: np.ndarray) -> bool:
     color_ratio = unique_colors / sample_size  # low = restricted palette (screenshots)
 
     # Signal 3: row/column uniformity — screenshots have many fully uniform rows
-    row_stds = arr.std(axis=(1, 2))
+    row_stds = arr_u8.std(axis=(1, 2))
     uniform_row_ratio = float((row_stds < 5.0).mean())
 
     # Verdict: screenshots have high edges, low color ratio, or many uniform rows

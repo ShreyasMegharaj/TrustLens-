@@ -17,7 +17,18 @@
 // ── Defaults (override in Settings panel or when deploying) ─────────────────
 const DEFAULTS = {
   mlServiceUrl: 'https://trustlens-ml-cm23.onrender.com',
-  websiteUrl:   'https://frontend-rhid6kx7h-shreyasmegharaj2-2447s-projects.vercel.app',
+  websiteUrl:   'https://frontend-gilt-pi-88.vercel.app',
+};
+
+const LEGACY_BAD_SETTINGS = {
+  mlServiceUrl: new Set([
+    'http://localhost:5001',
+    'https://trustlens-ml.onrender.com',
+  ]),
+  websiteUrl: new Set([
+    'http://localhost:5173',
+    'https://frontend-rhid6kx7h-shreyasmegharaj2-2447s-projects.vercel.app',
+  ]),
 };
 
 // ── State helpers ────────────────────────────────────────────────────────────
@@ -30,9 +41,22 @@ function showState(id) {
 function getSettings() {
   return new Promise(resolve => {
     chrome.storage.sync.get(['mlServiceUrl', 'websiteUrl'], data => {
+      const savedMlUrl = (data.mlServiceUrl || '').replace(/\/$/, '');
+      const savedWebUrl = (data.websiteUrl || '').replace(/\/$/, '');
+      const mlServiceUrl = !savedMlUrl || LEGACY_BAD_SETTINGS.mlServiceUrl.has(savedMlUrl)
+        ? DEFAULTS.mlServiceUrl
+        : savedMlUrl;
+      const websiteUrl = !savedWebUrl || LEGACY_BAD_SETTINGS.websiteUrl.has(savedWebUrl)
+        ? DEFAULTS.websiteUrl
+        : savedWebUrl;
+
+      if (mlServiceUrl !== savedMlUrl || websiteUrl !== savedWebUrl) {
+        chrome.storage.sync.set({ mlServiceUrl, websiteUrl });
+      }
+
       resolve({
-        mlServiceUrl: (data.mlServiceUrl || DEFAULTS.mlServiceUrl).replace(/\/$/, ''),
-        websiteUrl:   (data.websiteUrl   || DEFAULTS.websiteUrl).replace(/\/$/, ''),
+        mlServiceUrl,
+        websiteUrl,
       });
     });
   });
