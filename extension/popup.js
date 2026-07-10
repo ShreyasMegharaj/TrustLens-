@@ -16,7 +16,7 @@
 
 // ── Defaults (override in Settings panel or when deploying) ─────────────────
 const DEFAULTS = {
-  mlServiceUrl: 'https://trustlens-ml.onrender.com',
+  mlServiceUrl: 'https://trustlens-ml-cm23.onrender.com',
   websiteUrl:   'https://frontend-rhid6kx7h-shreyasmegharaj2-2447s-projects.vercel.app',
 };
 
