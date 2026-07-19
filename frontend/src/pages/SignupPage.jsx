@@ -41,17 +41,24 @@ export default function SignupPage() {
   const [form,    setForm]    = useState({ name: "", email: "", password: "" });
   const [error,   setError]   = useState("");
   const [loading, setLoading] = useState(false);
+  const [slowMsg, setSlowMsg] = useState("");
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSlowMsg("");
     if (form.password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
     }
     setLoading(true);
+
+    const wakeTimer = setTimeout(() => {
+      setSlowMsg("⏳ Waking up server… (Render free tier sleeps — hang tight!)");
+    }, 6000);
+
     try {
       const data = await signup(form.name, form.email, form.password);
       saveAuth(data.token, data.user);
@@ -59,6 +66,8 @@ export default function SignupPage() {
     } catch (err) {
       setError(err.message);
     } finally {
+      clearTimeout(wakeTimer);
+      setSlowMsg("");
       setLoading(false);
     }
   };
@@ -94,6 +103,13 @@ export default function SignupPage() {
             <div className="bg-note-red border-2 border-risk-high px-4 py-3 animate-fade-in"
               style={{ borderRadius: "6px 12px 6px 6px" }}>
               <p className="text-sm font-body text-risk-high">{error}</p>
+            </div>
+          )}
+
+          {slowMsg && !error && (
+            <div className="bg-note-blue border-2 border-brand px-4 py-3 animate-fade-in"
+              style={{ borderRadius: "6px 12px 6px 6px" }}>
+              <p className="text-sm font-body text-brand">{slowMsg}</p>
             </div>
           )}
 
