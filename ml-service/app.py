@@ -169,11 +169,10 @@ def analyze_document():
     file.save(filepath)
 
     try:
-        # ── Multi-pass averaging for score stability ──────────────────────────
-        # Run ELA analysis 3 times.  ela_analysis() v2 internally already runs
-        # 3 quality-perturbed passes, so this outer loop gives us 9 total
-        # passes averaged together → extremely stable score.
-        NUM_OUTER_PASSES = 3
+        # Run ELA analysis once. ela_analysis() already runs 6 quality-perturbed
+        # passes internally → 6 total ELA comparisons averaged → stable score.
+        # (Previously 3 outer passes = 18 total, making it 3× slower than needed.)
+        NUM_OUTER_PASSES = 1
         all_scores   = []
         all_details  = None
 

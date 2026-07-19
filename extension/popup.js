@@ -37,6 +37,11 @@ function showState(id) {
     .forEach(s => document.getElementById(s).classList.toggle('hidden', s !== id));
 }
 
+function setStatus(msg) {
+  const el = document.getElementById('stateCapturingMsg');
+  if (el) el.textContent = msg;
+}
+
 // ── Storage helpers ──────────────────────────────────────────────────────────
 function getSettings() {
   return new Promise(resolve => {
@@ -86,17 +91,58 @@ async function analyzeBlob(blob, filename, dataUrl) {
   const form = new FormData();
   form.append('file', blob, filename);
 
-  const res = await fetch(`${mlServiceUrl}/analyze/document`, {
-    method: 'POST',
-    body:   form,
-  });
+  // Hard 30-second timeout — prevents the popup from hanging if Render is slow
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 30_000);
 
-  if (!res.ok) {
-    const errBody = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(`ML service (${res.status}): ${errBody.error || res.statusText}`);
+  try {
+    const res = await fetch(`${mlServiceUrl}/analyze/document`, {
+      method: 'POST',
+      body:   form,
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(`ML service (${res.status}): ${errBody.error || res.statusText}`);
+    }
+
+    return res.json();
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('ML service timed out (30s). It may be waking up — please retry in 30 seconds.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
+}
 
-  return res.json();
+// ── Wake-up ping: hit /health to warm up the Render ML service ───────────────
+async function wakeUpMlService(mlServiceUrl) {
+  try {
+    await fetch(`${mlServiceUrl}/health`, { method: 'GET', signal: AbortSignal.timeout(25_000) });
+  } catch (_) {
+    // Ignore — if the ping fails we still try the actual analysis
+  }
+}
+
+// ── Compress screenshot dataURL to JPEG for faster upload ────────────────────
+function compressDataUrl(dataUrl, maxDim = 1280, quality = 0.82) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width  * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width  = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
 }
 
 // ── Show result card ─────────────────────────────────────────────────────────
@@ -175,19 +221,29 @@ function showResult(mlResult, dataUrl) {
 // ── Main: capture screenshot + analyze ──────────────────────────────────────
 async function captureAndAnalyze() {
   showState('stateCapturing');
+  setStatus('📸 Capturing screenshot…');
 
   try {
-    // 1. Capture the active tab
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    const dataUrl = await chrome.tabs.captureVisibleTab(null, { format: 'png' });
+    const { mlServiceUrl } = await getSettings();
 
-    // 2. Show analyzing state with preview
+    // 1. Capture the active tab
+    const dataUrlRaw = await chrome.tabs.captureVisibleTab(null, { format: 'png' });
+
+    // 2. Compress for faster upload (PNG screenshots can be 3–5 MB)
+    setStatus('🗜 Compressing image…');
+    const dataUrl = await compressDataUrl(dataUrlRaw, 1280, 0.82);
+
+    // 3. Wake up the ML service if it's sleeping on Render
+    setStatus('⚡ Warming up AI service…');
+    await wakeUpMlService(mlServiceUrl);
+
+    // 4. Show analyzing state with preview
     document.getElementById('previewImg').src = dataUrl;
     showState('stateAnalyzing');
 
-    // 3. Convert to blob and analyze
+    // 5. Convert to blob and analyze
     const blob     = dataUrlToBlob(dataUrl);
-    const mlResult = await analyzeBlob(blob, 'screenshot.png', dataUrl);
+    const mlResult = await analyzeBlob(blob, 'screenshot.jpg', dataUrl);
 
     showResult(mlResult, dataUrl);
 
@@ -199,12 +255,19 @@ async function captureAndAnalyze() {
 // ── Alternate: analyze a specific image URL (from context menu) ──────────────
 async function analyzeImageUrl(imageUrl) {
   showState('stateCapturing');
+  setStatus('📥 Fetching image…');
 
   try {
+    const { mlServiceUrl } = await getSettings();
+
     const response = await fetch(imageUrl);
     if (!response.ok) throw new Error(`Cannot fetch image (${response.status})`);
     const blob    = await response.blob();
     const dataUrl = await blobToDataUrl(blob);
+
+    // Wake up ML service in parallel with UI update
+    setStatus('⚡ Warming up AI service…');
+    await wakeUpMlService(mlServiceUrl);
 
     document.getElementById('previewImg').src = dataUrl;
     showState('stateAnalyzing');

@@ -4,7 +4,8 @@
  */
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const REQUEST_TIMEOUT_MS = 20_000;
+// Render free-tier spins down after inactivity — allow up to 60s for cold start
+const REQUEST_TIMEOUT_MS = 60_000;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

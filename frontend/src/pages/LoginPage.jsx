@@ -43,13 +43,21 @@ export default function LoginPage() {
   const [form,    setForm]    = useState({ email: "", password: "" });
   const [error,   setError]   = useState("");
   const [loading, setLoading] = useState(false);
+  const [slowMsg, setSlowMsg] = useState("");
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSlowMsg("");
     setLoading(true);
+
+    // After 6s, show a hint that the server might be waking up from sleep
+    const wakeTimer = setTimeout(() => {
+      setSlowMsg("⏳ Waking up server… (Render free tier sleeps — hang tight!)");
+    }, 6000);
+
     try {
       const data = await login(form.email, form.password);
       saveAuth(data.token, data.user);
@@ -57,6 +65,8 @@ export default function LoginPage() {
     } catch (err) {
       setError(err.message);
     } finally {
+      clearTimeout(wakeTimer);
+      setSlowMsg("");
       setLoading(false);
     }
   };
@@ -92,6 +102,13 @@ export default function LoginPage() {
             <div className="bg-note-red border-2 border-risk-high px-4 py-3 animate-fade-in"
               style={{ borderRadius: "6px 12px 6px 6px" }}>
               <p className="text-sm font-body text-risk-high">{error}</p>
+            </div>
+          )}
+
+          {slowMsg && !error && (
+            <div className="bg-note-blue border-2 border-brand px-4 py-3 animate-fade-in"
+              style={{ borderRadius: "6px 12px 6px 6px" }}>
+              <p className="text-sm font-body text-brand">{slowMsg}</p>
             </div>
           )}
 
