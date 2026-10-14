@@ -75,12 +75,35 @@ router.post("/", protect, upload.single("file"), async (req, res) => {
       contentType: req.file.mimetype,
     });
 
-    const mlResponse = await axios.post(mlEndpoint, form, {
-      headers:        { ...form.getHeaders() },
-      maxContentLength: Infinity,
-      maxBodyLength:    Infinity,
-      timeout:          120_000, // 2 min timeout for large videos
-    });
+    let mlResponse;
+    try {
+      mlResponse = await axios.post(mlEndpoint, form, {
+        headers:        { ...form.getHeaders() },
+        maxContentLength: Infinity,
+        maxBodyLength:    Infinity,
+        timeout:          15_000, // 15s timeout before trying local fallback
+      });
+    } catch (err) {
+      if (ML_URL !== "http://localhost:5001" && (err.code === "ECONNREFUSED" || err.code === "ETIMEDOUT" || err.code === "ENOTFOUND" || err.message?.includes("timeout"))) {
+        console.log("[Verify] Remote ML service failed, trying local fallback http://localhost:5001...");
+        const fallbackEndpoint = fileType === "video"
+          ? "http://localhost:5001/analyze/video"
+          : "http://localhost:5001/analyze/document";
+        const fallbackForm = new FormData();
+        fallbackForm.append("file", req.file.buffer, {
+          filename:    req.file.originalname,
+          contentType: req.file.mimetype,
+        });
+        mlResponse = await axios.post(fallbackEndpoint, fallbackForm, {
+          headers:        { ...fallbackForm.getHeaders() },
+          maxContentLength: Infinity,
+          maxBodyLength:    Infinity,
+          timeout:          120_000,
+        });
+      } else {
+        throw err;
+      }
+    }
 
     const mlResult = mlResponse.data;
 

@@ -3,7 +3,11 @@
  * Single file — all requests go through here.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+let rawBase = import.meta.env.VITE_API_URL || "https://trustlens-backend-75mv.onrender.com/api";
+if (rawBase.includes("trustlens-backend.onrender.com")) {
+  rawBase = rawBase.replace("trustlens-backend.onrender.com", "trustlens-backend-75mv.onrender.com");
+}
+const BASE_URL = rawBase;
 // Render free-tier spins down after inactivity — allow up to 60s for cold start
 const REQUEST_TIMEOUT_MS = 60_000;
 
