@@ -21,7 +21,9 @@ Detection signals:
 import io
 import cv2
 import numpy as np
-from PIL import Image, ImageChops, ImageEnhance, ImageFilter
+from PIL import Image, ImageChops, ImageEnhance, ImageFilter, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+Image.MAX_IMAGE_PIXELS = None
 
 MAX_IMAGE_ANALYSIS_DIM = 960
 
