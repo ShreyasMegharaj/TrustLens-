@@ -3,9 +3,13 @@
  * Single file — all requests go through here.
  */
 
-let rawBase = import.meta.env.VITE_API_URL || "https://trustlens-backend-75mv.onrender.com/api";
+let rawBase = (import.meta.env.VITE_API_URL || "https://trustlens-backend-75mv.onrender.com/api").trim();
+rawBase = rawBase.replace(/\/+$/, "");
 if (rawBase.includes("trustlens-backend.onrender.com")) {
   rawBase = rawBase.replace("trustlens-backend.onrender.com", "trustlens-backend-75mv.onrender.com");
+}
+if (!rawBase.endsWith("/api")) {
+  rawBase = `${rawBase}/api`;
 }
 const BASE_URL = rawBase;
 // Render free-tier spins down after inactivity — allow up to 60s for cold start

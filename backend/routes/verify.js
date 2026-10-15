@@ -81,14 +81,19 @@ router.post("/", protect, upload.single("file"), async (req, res) => {
         headers:        { ...form.getHeaders() },
         maxContentLength: Infinity,
         maxBodyLength:    Infinity,
-        timeout:          15_000, // 15s timeout before trying local fallback
+        timeout:          15_000, // 15s timeout before trying fallback
       });
     } catch (err) {
-      if (ML_URL !== "http://localhost:5001" && (err.code === "ECONNREFUSED" || err.code === "ETIMEDOUT" || err.code === "ENOTFOUND" || err.message?.includes("timeout"))) {
-        console.log("[Verify] Remote ML service failed, trying local fallback http://localhost:5001...");
+      const isNetworkOrTimeout = err.code === "ECONNREFUSED" || err.code === "ETIMEDOUT" || err.code === "ENOTFOUND" || err.message?.includes("timeout");
+      const fallbackBase = ML_URL.includes("localhost")
+        ? "https://trustlens-ml-cm23.onrender.com"
+        : "http://localhost:5001";
+
+      if (isNetworkOrTimeout && fallbackBase) {
+        console.log(`[Verify] Primary ML service (${ML_URL}) failed, trying fallback (${fallbackBase})...`);
         const fallbackEndpoint = fileType === "video"
-          ? "http://localhost:5001/analyze/video"
-          : "http://localhost:5001/analyze/document";
+          ? `${fallbackBase}/analyze/video`
+          : `${fallbackBase}/analyze/document`;
         const fallbackForm = new FormData();
         fallbackForm.append("file", req.file.buffer, {
           filename:    req.file.originalname,
