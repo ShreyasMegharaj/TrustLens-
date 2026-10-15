@@ -76,37 +76,44 @@ router.post("/", protect, upload.single("file"), async (req, res) => {
     });
 
     let mlResponse;
+    const RENDER_ML = "https://trustlens-ml-cm23.onrender.com";
+
+    // Build primary + fallback endpoint pairs
+    const primaryBase  = ML_URL;
+    const fallbackBase = ML_URL.includes("localhost") ? RENDER_ML : "http://localhost:5001";
+    const primaryEndpoint  = fileType === "video" ? `${primaryBase}/analyze/video`  : `${primaryBase}/analyze/document`;
+    const fallbackEndpoint = fileType === "video" ? `${fallbackBase}/analyze/video` : `${fallbackBase}/analyze/document`;
+
+    // Helper to build a fresh FormData from the uploaded buffer
+    function buildForm() {
+      const f = new FormData();
+      f.append("file", req.file.buffer, { filename: req.file.originalname, contentType: req.file.mimetype });
+      return f;
+    }
+
+    const primaryForm = buildForm();
     try {
-      mlResponse = await axios.post(mlEndpoint, form, {
-        headers:        { ...form.getHeaders() },
+      // Short timeout for localhost (won't exist on Render), full timeout for remote
+      const primaryTimeout = primaryBase.includes("localhost") ? 3_000 : 120_000;
+      mlResponse = await axios.post(primaryEndpoint, primaryForm, {
+        headers:          { ...primaryForm.getHeaders() },
         maxContentLength: Infinity,
         maxBodyLength:    Infinity,
-        timeout:          15_000, // 15s timeout before trying fallback
+        timeout:          primaryTimeout,
       });
-    } catch (err) {
-      const isNetworkOrTimeout = err.code === "ECONNREFUSED" || err.code === "ETIMEDOUT" || err.code === "ENOTFOUND" || err.message?.includes("timeout");
-      const fallbackBase = ML_URL.includes("localhost")
-        ? "https://trustlens-ml-cm23.onrender.com"
-        : "http://localhost:5001";
-
-      if (isNetworkOrTimeout && fallbackBase) {
-        console.log(`[Verify] Primary ML service (${ML_URL}) failed, trying fallback (${fallbackBase})...`);
-        const fallbackEndpoint = fileType === "video"
-          ? `${fallbackBase}/analyze/video`
-          : `${fallbackBase}/analyze/document`;
-        const fallbackForm = new FormData();
-        fallbackForm.append("file", req.file.buffer, {
-          filename:    req.file.originalname,
-          contentType: req.file.mimetype,
-        });
+    } catch (primaryErr) {
+      console.log(`[Verify] Primary ML (${primaryBase}) failed: ${primaryErr.message}. Falling back to ${fallbackBase}...`);
+      const fallbackForm = buildForm();
+      try {
         mlResponse = await axios.post(fallbackEndpoint, fallbackForm, {
-          headers:        { ...fallbackForm.getHeaders() },
+          headers:          { ...fallbackForm.getHeaders() },
           maxContentLength: Infinity,
           maxBodyLength:    Infinity,
           timeout:          120_000,
         });
-      } else {
-        throw err;
+      } catch (fallbackErr) {
+        console.error(`[Verify] Fallback ML (${fallbackBase}) also failed: ${fallbackErr.message}`);
+        throw fallbackErr;
       }
     }
 
